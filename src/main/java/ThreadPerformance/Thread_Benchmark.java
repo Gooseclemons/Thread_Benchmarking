@@ -15,12 +15,20 @@ import java.util.concurrent.TimeUnit;
 @BenchmarkMode(Mode.AverageTime)
 public class Thread_Benchmark {
 
-    static WikiSystem system;
+    private WikiSystem system;
+
+    @Param({"10"})
+    private int num_clients;
+
+    @Param({"0.1"})
+    private double writeChance;
 
     public static void main(String[] args) throws RunnerException {
         Options opt = new OptionsBuilder()
                 .include(Benchmark.class.getSimpleName())
-                .forks(2)
+                .forks(1)
+//                .warmupIterations(2)
+//                .measurementIterations(2)
                 .result("BenchmarkResults.json")
                 .resultFormat(ResultFormatType.JSON)
                 .build();
@@ -28,9 +36,15 @@ public class Thread_Benchmark {
     }
 
     @Benchmark
-    public void runIt() {
-        system = new WikiSystem(10, 0.1);
+    public void runCustomRWL() {
+        system = new WikiSystem(num_clients, writeChance);
         system.runClients();
+    }
+
+    @Setup(Level.Iteration)
+    public void setupBenchmark() {
+        //System.out.println("Iter");
+        system = new WikiSystem(num_clients, writeChance);
     }
 
 }

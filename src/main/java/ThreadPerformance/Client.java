@@ -22,40 +22,41 @@ public class Client extends Thread {
     final RWL lock;
 
     final double writeChance;
+    final int iterations;
     String data;
 
-    Client(double writeChance, WikiSystem dataStore, RWL lock) {
+    Client(double writeChance, WikiSystem dataStore, RWL lock, int iterations) {
         this.writeChance = writeChance;
         this.dataStore = dataStore;
         this.lock = lock;
+        this.iterations = iterations;
         data = "";
     }
 
     @Override
     public void run() {
-        double rand_num = randomNumber(); // Responsible for r/w calculation
-        if (rand_num < writeChance) { // Write case
-            lock.writeLock(); // Acquire lock
+        for (int i = 0; i < iterations; i++) {
+            double rand_num = randomNumber(); // Responsible for r/w calculation
+            if (rand_num < writeChance) { // Write case
+                lock.writeLock(); // Acquire lock
 
-            data = dataStore.getData();
-            if (rand_num < (writeChance / 2)) { // Add condition
-                data = data.concat("0");
-            }
-            else if (!data.isEmpty()) { // Remove condition
-                data = data.substring(0, data.length() - 1);
-            }
-            else if (data.isEmpty() || data.length() > 64) {  // Empty or too large condition
-                data = "0";
-            }
-            dataStore.setData(data);
-            //System.out.println(data); // Debuggg
+                data = dataStore.getData();
+                if (rand_num < (writeChance / 2)) { // Add condition
+                    data = data.concat("0");
+                } else if (!data.isEmpty()) { // Remove condition
+                    data = data.substring(0, data.length() - 1);
+                } else if (data.isEmpty() || data.length() > 64) {  // Empty or too large condition
+                    data = "0";
+                }
+                dataStore.setData(data);
+                //System.out.println(data); // Debuggg
 
-            lock.unlockWrite(); // Release lock
-        }
-        else { // Read case
-            lock.readLock();
-            data = dataStore.getData();
-            lock.unlockRead();
+                lock.unlockWrite(); // Release lock
+            } else { // Read case
+                lock.readLock();
+                data = dataStore.getData();
+                lock.unlockRead();
+            }
         }
     }
 

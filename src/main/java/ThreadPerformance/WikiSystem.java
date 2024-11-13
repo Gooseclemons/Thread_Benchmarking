@@ -22,7 +22,7 @@ public class WikiSystem {
 
     void initializeClients() {
         for (int i = 0; i < num_clients; i++) {
-            clients[i] = new Client(writeChance, this, lock);
+            clients[i] = new Client(writeChance, this, lock, 100);
         }
     }
 
