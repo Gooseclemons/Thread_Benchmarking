@@ -21,8 +21,13 @@ public class Grapher {
 
     Grapher() throws IOException {
         jsonPath = new File("").getAbsolutePath();
-        jsonPath = jsonPath.concat("\\jmh-result.json");
+        jsonPath = jsonPath.concat(File.separator + "jmh-result.json");
         jsonFile = new ObjectMapper().readTree(new File(jsonPath));
+    }
+
+    public static void main(String[] args) throws IOException {
+        Grapher grapher = new Grapher();
+        grapher.createGraph();
     }
 
     void createGraph() throws IOException {

@@ -31,10 +31,13 @@ public class PlatformClient extends Client {
             if (rand < 0.5) {   // Add case
                 String addString = (rand < 0.25) ? "0" : "1";
                 data = data.concat(addString);
-            } else if (!data.isEmpty()) {   // End case
+                dataStore.setData(data);
+            } else if (!data.isEmpty()) {   // Remove case
                 data = data.substring(0, data.length() - 1);
+                dataStore.setData(data);
             } else {    // Empty case
                 data = data.concat("0");
+                dataStore.setData(data);
             }
         } finally {
             lock.writeLock().unlock();

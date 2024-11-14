@@ -57,6 +57,7 @@
         <artifactId>maven-shade-plugin</artifactId>
         <version>3.5.1</version>
         <executions>
+
           <execution>
             <phase>package</phase>
             <goals>
@@ -72,6 +73,25 @@
               </transformers>
             </configuration>
           </execution>
+
+          <execution>
+            <id>Graph</id>
+            <phase>package</phase>
+            <goals>
+              <goal>shade</goal>
+            </goals>
+            <configuration>
+              <finalName>graph</finalName>
+              <transformers>
+                <transformer
+                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <mainClass>Graphing.Grapher</mainClass>
+                </transformer>
+              </transformers>
+            </configuration>
+
+          </execution>
+
         </executions>
       </plugin>
 
