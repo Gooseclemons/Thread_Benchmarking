@@ -23,12 +23,15 @@ public class Thread_Benchmark {
     @Param({"0.1"})
     private double writeChance;
 
+    @Param({"100"})
+    private int iterations;
+
     public static void main(String[] args) throws RunnerException {
         Options opt = new OptionsBuilder()
                 .include(Benchmark.class.getSimpleName())
                 .forks(1)
-//                .warmupIterations(2)
-//                .measurementIterations(2)
+                .warmupIterations(2)
+                .measurementIterations(2)
                 .result("BenchmarkResults.json")
                 .resultFormat(ResultFormatType.JSON)
                 .build();
@@ -36,15 +39,22 @@ public class Thread_Benchmark {
     }
 
     @Benchmark
-    public void runCustomRWL() {
-        system = new WikiSystem(num_clients, writeChance);
-        system.runClients();
+    public void runCustomClients() {
+        system = new WikiSystem(num_clients, writeChance, iterations);
+        system.initializeCustomClients();
+        system.runCustomClients();
     }
 
-    @Setup(Level.Iteration)
-    public void setupBenchmark() {
-        //System.out.println("Iter");
-        system = new WikiSystem(num_clients, writeChance);
+    @Benchmark
+    public void runPlatformClients() {
+        system = new WikiSystem(num_clients, writeChance, iterations);
+        system.initializePlatformClients();
+        system.runPlatformClients();
     }
+
+//    @Setup(Level.Iteration)
+//    public void setupBenchmark() {
+//        system = new WikiSystem(num_clients, writeChance, iterations);
+//    }
 
 }

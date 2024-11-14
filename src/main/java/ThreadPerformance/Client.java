@@ -16,19 +16,16 @@ import java.util.concurrent.TimeUnit;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-public class Client extends Thread {
+public abstract class Client extends Thread {
 
     final WikiSystem dataStore;
-    final RWL lock;
-
     final double writeChance;
     final int iterations;
     String data;
 
-    Client(double writeChance, WikiSystem dataStore, RWL lock, int iterations) {
+    Client(double writeChance, WikiSystem dataStore, int iterations) {
         this.writeChance = writeChance;
         this.dataStore = dataStore;
-        this.lock = lock;
         this.iterations = iterations;
         data = "";
     }
@@ -37,28 +34,22 @@ public class Client extends Thread {
     public void run() {
         for (int i = 0; i < iterations; i++) {
             double rand_num = randomNumber(); // Responsible for r/w calculation
-            if (rand_num < writeChance) { // Write case
-                lock.writeLock(); // Acquire lock
-
-                data = dataStore.getData();
-                if (rand_num < (writeChance / 2)) { // Add condition
-                    data = data.concat("0");
-                } else if (!data.isEmpty()) { // Remove condition
-                    data = data.substring(0, data.length() - 1);
-                } else if (data.isEmpty() || data.length() > 64) {  // Empty or too large condition
-                    data = "0";
-                }
-                dataStore.setData(data);
-                //System.out.println(data); // Debuggg
-
-                lock.unlockWrite(); // Release lock
-            } else { // Read case
-                lock.readLock();
-                data = dataStore.getData();
-                lock.unlockRead();
-            }
+            readWriteDecision(rand_num);
         }
     }
+
+    void readWriteDecision(double rand_num) {
+        if (rand_num < writeChance) {
+            write();
+        }
+        else {
+            read();
+        }
+    }
+
+    abstract void read();
+
+    abstract void write();
 
     double randomNumber() {
         return ThreadLocalRandom.current().nextDouble();

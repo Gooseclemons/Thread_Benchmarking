@@ -1,32 +1,47 @@
 package ThreadPerformance;
 
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+
 public class WikiSystem {
 
     final Client[] clients;
-    final RWL lock;
+    final RWL customLock;
+    final ReentrantReadWriteLock platformLock;
 
     private String wikiData = "";
 
     final int num_clients;
     final double writeChance;
+    final int iterations;
 
-    WikiSystem(int num_clients, double writeChance) {
+    WikiSystem(int num_clients, double writeChance, int iterations) {
         this.num_clients = num_clients;
         this.writeChance = writeChance;
-        lock = new RWL();
-
+        customLock = new RWL();
+        platformLock = new ReentrantReadWriteLock();
         clients = new Client[num_clients];
-        initializeClients();
-        //runClients()  Is it nescessary to immediately run, difficult for collecting data
+        this.iterations = iterations;
     }
 
-    void initializeClients() {
+    void initializePlatformClients() {
         for (int i = 0; i < num_clients; i++) {
-            clients[i] = new Client(writeChance, this, lock, 100);
+            clients[i] = new PlatformClient(writeChance, this, iterations, platformLock);
         }
     }
 
-    void runClients() {
+    void runPlatformClients() {
+        for (int i = 0; i < num_clients; i++) {
+            clients[i].start();
+        }
+    }
+
+    void initializeCustomClients() {
+        for (int i = 0; i < num_clients; i++) {
+            clients[i] = new CustomClient(writeChance, this, iterations, customLock);
+        }
+    }
+
+    void runCustomClients() {
         for (int i = 0; i < num_clients; i++) {
             clients[i].start();
         }
